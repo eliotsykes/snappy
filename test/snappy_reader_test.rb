@@ -11,6 +11,7 @@ class SnappyReaderTest < Test::Unit::TestCase
       w << "bar"
       w << "baz"
       w << "quux"
+      w << Random.bytes(1024 * 10)
     end
     @buffer.rewind
   end

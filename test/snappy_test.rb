@@ -6,7 +6,7 @@ class SnappyTest < Test::Unit::TestCase
   T = [*"a".."z", *"A".."Z", *"0".."9"].freeze
 
   def random_data(length = 1024)
-    Array.new(length) { T.sample }.join
+    Random.bytes(length)
   end
 
   test "VERSION" do
@@ -90,6 +90,21 @@ class SnappyTest < Test::Unit::TestCase
         end
       end
       assert_equal [true, true], a.map(&:take)
+    end
+
+    test "take2" do
+      unless defined? ::Ractor
+        notify "Ractor not defined"
+        omit
+      end
+      s = random_data
+      i = Ractor.new(s) do |s|
+        Snappy.deflate(s)
+      end.take
+      j = Ractor.new(i) do |i|
+        Snappy.inflate(i)
+      end.take
+      assert_equal s, j
     end
   end
 end
